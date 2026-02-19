@@ -1,6 +1,4 @@
-aい。
 
-Markdown
 # Interstitial Journaling Tool for Notion
 
 Notionの「インタースティシャル・ジャーナリングDB」へ、デスクトップから素早く入力を送るためのGUIアプリケーションです。
