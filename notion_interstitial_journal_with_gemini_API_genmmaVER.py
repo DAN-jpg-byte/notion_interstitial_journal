@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 import requests
 import json
+import re  # 正規表現を使ってJSONを抽出するために追加
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -27,12 +28,12 @@ else:
 generation_config = {
     "temperature": 0.4, # 事実ベースで抽出させるため、少し低めに設定
     "top_p": 0.95,
-    "top_k": 64,
-    "max_output_tokens": 8192,
-    "response_mime_type": "application/json", # JSON形式の出力を強制
+    # "top_k": 64,
+    # "max_output_tokens": 8192,
+    # "response_mime_type": "application/json", # JSON形式の出力を強制 (Gemmaでは使用不可のためコメントアウト)
 }
 model = genai.GenerativeModel(
-    model_name="gemini-2.5-flash-lite",
+    model_name="gemma-3-27b-it",
     generation_config=generation_config,
 )
 
@@ -64,24 +65,63 @@ def process_and_send():
     try:
         # 1. Geminiに投げるプロンプトの作成
         prompt = f"""
-        以下のテキストは、作業中のユーザーが書いたジャーナルメモです。
-        文脈を読み取り、以下の4つの要素に分類・抽出してJSON形式で出力してください。
-        該当する内容がない要素は空文字("")にしてください。
+                以下のテキストは、作業中のユーザーが書いたジャーナルメモです。
+                文脈を読み取り、以下の4つの要素に分類・抽出してJSON形式で出力してください。
+                該当する内容がない要素は空文字("")にしてください。
+                
+                ユーザーの入力した文章を勝手に書き換えないでください。
+                入力された生の言葉を、そのままの長さで各項目に振り分けてください。
+                「えー」「あー」「んーと」などのフィラー（意味のない繋ぎ言葉）は、内容を損なわない範囲で削除してください。
+                誤字脱字の修正は行ってください。
+                文章の区切りがわかりにくい場合は、改行や、【。】【、】句読点などをくわえてください。
 
-        【分類する項目】
-        - "done": 完了したこと（簡潔なタイトルとして抽出）
-        - "next": 次にやりたいこと
-        - "mood": 感情・状況
-        - "memo": 後でやりたいこと、その他のメモなど
+                【分類する項目】
+                - "done": 完了したこと（簡潔なタイトルとして抽出）
+                - "next": 次にやりたいこと
+                - "mood": 感情・状況
+                - "memo": 後でやりたいこと、その他のメモなど
 
-        【入力テキスト】
-        {raw_text}
-        """
+                【重要】
+                以下のテキストを解析し、必ず指定したJSONフォーマットのみで出力してください。
+                マークダウンのコードブロック（```json ... ```）は使用せず、生のJSONテキストのみを出力してください。
+
+                【出力フォーマット】
+                {{
+                    "done": "完了したタスクのタイトル",
+                    "next": "次にやること",
+                    "mood": "今の気分や状況",
+                    "memo": "その他のメモ"
+                }}
+
+                【入力テキスト】
+                {raw_text}
+                """
 
         # 2. Gemini APIの呼び出し
         response = model.generate_content(prompt)
-        parsed_data = json.loads(response.text)
+        response_text = response.text
         
+        # ==========================================
+        # デバッグ用：AIの生の返答をコンソールに表示
+        # ==========================================
+        print("\n" + "="*50)
+        print("【デバッグ】AIからの生の返答:")
+        print(response_text)
+        print("="*50 + "\n")
+        # ==========================================
+
+        # 正規表現で {...} の部分（JSON文字列）だけを抽出する
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        
+        if json_match:
+            json_str = json_match.group(0)
+            parsed_data = json.loads(json_str)
+        else:
+            log_message("エラー: AIの返答からJSONを見つけられませんでした。")
+            log_message(f"AIの実際の返答:\n{response_text}")
+            send_button.config(state=tk.NORMAL)
+            return
+
         # 抽出したデータの取得
         done_text = parsed_data.get("done", "")
         next_text = parsed_data.get("next", "")
@@ -119,7 +159,7 @@ def process_and_send():
             log_message(f"{notion_response.json()}")
 
     except json.JSONDecodeError:
-        log_message("エラー: Geminiからの応答をJSONとして解析できませんでした。")
+        log_message("エラー: 抽出したテキストをJSONとして解析できませんでした。")
     except Exception as e:
         log_message(f"エラーが発生しました: {e}")
     finally:

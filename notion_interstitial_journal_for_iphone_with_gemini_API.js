@@ -12,7 +12,7 @@ const GEMINI_API_KEY = "あなたのGEMINI_API_KEY";
 // -------------------
 
 const NOTION_API_URL = "https://api.notion.com/v1/pages";
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
 
 async function run() {
   // 1. ショートカットからの入力を受け取る
