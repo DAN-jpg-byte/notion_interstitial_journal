@@ -37,7 +37,7 @@ async function run() {
   alert.message = "今の状態を入力してください";
 
   alert.addTextField("完了したこと (Title)", "");
-  alert.addTextField("次にやりたいこと", "");
+  alert.addTextField("次にやりたいこと・目的", "");
   alert.addTextField("気持ち", "");
   alert.addTextField("後でやりたいこと、メモなど", "");
 

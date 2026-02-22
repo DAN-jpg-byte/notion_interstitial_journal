@@ -113,7 +113,7 @@ label_done.pack(pady=(10, 0))
 entry_done = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=50, height=3)
 entry_done.pack(pady=PAD_Y)
 
-label_next = tk.Label(root, text="■ 次にやりたいこと", font=("Helvetica", 10, "bold"))
+label_next = tk.Label(root, text="■ 次にやりたいこと・目的", font=("Helvetica", 10, "bold"))
 label_next.pack(pady=(10, 0))
 entry_next = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=50, height=3)
 entry_next.pack(pady=PAD_Y)
