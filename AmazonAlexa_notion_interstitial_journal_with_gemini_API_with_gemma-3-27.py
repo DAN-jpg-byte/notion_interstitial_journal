@@ -202,6 +202,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         logger.error(exception, exc_info=True)
         return handler_input.response_builder.speak("予期せぬエラーが発生しました。").response
 
+
 sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(JournalIntentHandler())
