@@ -78,8 +78,8 @@ class JournalIntentHandler(AbstractRequestHandler):
 
 
         【分類する項目】
-        - "done": 完了したこと
-        - "next": 次にやりたいこと
+        - "done": 終了したことOR完了したこと
+        - "next": 開始したことOR次にやりたいこと
         - "mood": 感情・状況
         - "memo": 後でやりたいこと、その他のメモなど
 
@@ -89,8 +89,8 @@ class JournalIntentHandler(AbstractRequestHandler):
 
         【出力フォーマット】
         {{
-            "done": "完了したこと",
-            "next": "次にやること",
+            "done": "終了したことOR完了したこと",
+            "next": "開始したことOR次にやりたいこと",
             "mood": "感情・状況",
             "memo": "後でやりたいこと、その他のメモなど"
         }}
