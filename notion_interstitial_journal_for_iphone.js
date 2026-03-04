@@ -22,6 +22,7 @@
  * * 概要: 
  * iPhoneからNotionのデータベースへ、インタースティシャル・ジャーナリングを
  * 素早く記録するためのScriptableスクリプト。(音声入力の「スラッシュ」改行対応版)
+ *「目的」項目を含めて記録するスクリプト
  */
 
 // --- 🔽 ここをあなたの情報に書き換えてください 🔽 ---
@@ -36,10 +37,12 @@ async function run() {
   alert.title = "Interstitial Journaling";
   alert.message = "今の状態を入力してください";
 
-  alert.addTextField("完了したこと (Title)", "");
-  alert.addTextField("次にやりたいこと・目的", "");
-  alert.addTextField("気持ち", "");
-  alert.addTextField("後でやりたいこと、メモなど", "");
+  // 入力フィールドの追加（Python版と同じ並びにしています）
+  alert.addTextField("終わったこと・完了したこと", ""); // 0
+  alert.addTextField("始めたこと・次にやりたいこと", ""); // 1
+  alert.addTextField("目的", "");                     // 2 (追加)
+  alert.addTextField("気持ち", "");                   // 3
+  alert.addTextField("後でやりたいこと、メモなど", "");    // 4
 
   alert.addAction("Notionに送信");
   alert.addCancelAction("キャンセル");
@@ -48,11 +51,12 @@ async function run() {
  
   if (responseIndex === -1) return; 
 
-  // 2. 入力値の取得（「スラッシュ」「/」「／」のいずれかを改行に変換）
+  // 各項目の取得と改行処理（「スラッシュ」の置換）
   let doneText = alert.textFieldValue(0).replace(/スラッシュ|\/|／/g, '\n');
   let nextText = alert.textFieldValue(1).replace(/スラッシュ|\/|／/g, '\n');
-  let moodText = alert.textFieldValue(2).replace(/スラッシュ|\/|／/g, '\n');
-  let memoText = alert.textFieldValue(3).replace(/スラッシュ|\/|／/g, '\n');
+  let goalText = alert.textFieldValue(2).replace(/スラッシュ|\/|／/g, '\n'); // 追加
+  let moodText = alert.textFieldValue(3).replace(/スラッシュ|\/|／/g, '\n');
+  let memoText = alert.textFieldValue(4).replace(/スラッシュ|\/|／/g, '\n');
 
   let currentTime = new Date().toISOString();
 
@@ -64,6 +68,10 @@ async function run() {
       },
       "I%5BJp": {
         "date": { "start": currentTime }
+      },
+      // 「目的」のID: qTOI を追加
+      "qTOI": {
+        "rich_text": [{ "text": { "content": goalText } }]
       },
       "udPY": {
         "rich_text": [{ "text": { "content": nextText } }]
@@ -91,7 +99,7 @@ async function run() {
     if (req.response.statusCode === 200) {
       let n = new Notification();
       n.title = "送信成功";
-      n.body = "Notionにジャーナルを記録しました。";
+      n.body = "Notionに目的を含めて記録しました。";
       n.schedule();
     } else {
       throw new Error(`エラー: ${req.response.statusCode}\n${JSON.stringify(res)}`);
@@ -105,5 +113,6 @@ async function run() {
 }
 
 await run(); 
+// ホーム画面に戻る（ショートカット "GoHome" が必要です）
 Safari.open("shortcuts://run-shortcut?name=GoHome");
 Script.complete();
