@@ -50,12 +50,34 @@ class JournalIntentHandler(AbstractRequestHandler):
             parsed_data = self.analyze_with_gemini(raw_text)
             self.send_to_notion(parsed_data)
             
-            done_text = parsed_data.get('done', '')
-            if done_text:
-                speak_output = f"記録しました。{done_text}、ですね。お疲れ様です。"
-            else:
-                speak_output = "ジャーナルに記録しました。"
+            # 各項目を取得
+            done = parsed_data.get('done', '')
+            next_task = parsed_data.get('next', '')
+            mood = parsed_data.get('mood', '')
+            memo = parsed_data.get('memo', '')
+
+            # レスポンスの組み立て
+            response_messages = []
+            
+            if done:
+                response_messages.append(f"「{done}」完了ですね。お疲れ様です！")
+            
+            if next_task:
+                response_messages.append(f"次は「{next_task}」ですね。応援しています。")
+            
+            if mood:
+                response_messages.append(f"今の気分は「{mood}」とのこと、承りました。")
                 
+            if memo:
+                response_messages.append(f"メモ「{memo}」も記録しておきました。")
+
+            # 何もデータが抽出できなかった場合のフォールバック
+            if not response_messages:
+                speak_output = "ジャーナルに記録しました。"
+            else:
+                # 全てのメッセージを繋げる
+                speak_output = " ".join(response_messages)
+        
         except Exception as e:
             logger.error(e)
             # エラーの詳細をアレクサに喋らせるデバッグモード
@@ -179,6 +201,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
     def handle(self, handler_input, exception):
         logger.error(exception, exc_info=True)
         return handler_input.response_builder.speak("予期せぬエラーが発生しました。").response
+
 
 sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
