@@ -1,5 +1,6 @@
 
 /**
+ * こちらはスラッシュを入れると改行するバージョンになってます！
  * 【Notion Interstitial Journaling for iOS】
  * * 概要: 
  * iPhoneからNotionのデータベースへ、インタースティシャル・ジャーナリングを
@@ -16,21 +17,27 @@
 
 
 
-// --- 設定 ---
+/**
+ * 【Notion Interstitial Journaling for iOS】
+ * * 概要: 
+ * iPhoneからNotionのデータベースへ、インタースティシャル・ジャーナリングを
+ * 素早く記録するためのScriptableスクリプト。(音声入力の「スラッシュ」改行対応版)
+ */
+
+// --- 🔽 ここをあなたの情報に書き換えてください 🔽 ---
 const NOTION_API_TOKEN = "あなたのAPIトークンをここに";
 const DATABASE_ID = "あなたのデータベースIDをここに";
+// -----------------------------------------------------
+
 const NOTION_API_URL = "https://api.notion.com/v1/pages";
 
-
-// --- メイン処理 ---
 async function run() {
-  // 1. 入力フォームの作成
   let alert = new Alert();
   alert.title = "Interstitial Journaling";
   alert.message = "今の状態を入力してください";
 
   alert.addTextField("完了したこと (Title)", "");
-  alert.addTextField("次にやりたいこと", "");
+  alert.addTextField("次にやりたいこと・目的", "");
   alert.addTextField("気持ち", "");
   alert.addTextField("後でやりたいこと、メモなど", "");
 
@@ -39,20 +46,16 @@ async function run() {
 
   let responseIndex = await alert.presentAlert();
  
-  if (responseIndex === -1) return; // キャンセル時
+  if (responseIndex === -1) return; 
 
-  // 2. 入力値の取得
-  let doneText = alert.textFieldValue(0);
-  let nextText = alert.textFieldValue(1);
-  let moodText = alert.textFieldValue(2);
-  let memoText = alert.textFieldValue(3);
+  // 2. 入力値の取得（「スラッシュ」「/」「／」のいずれかを改行に変換）
+  let doneText = alert.textFieldValue(0).replace(/スラッシュ|\/|／/g, '\n');
+  let nextText = alert.textFieldValue(1).replace(/スラッシュ|\/|／/g, '\n');
+  let moodText = alert.textFieldValue(2).replace(/スラッシュ|\/|／/g, '\n');
+  let memoText = alert.textFieldValue(3).replace(/スラッシュ|\/|／/g, '\n');
 
-  // 3. 現在時刻 (ISO 8601形式 / 日本時間)
-  // Scriptableは標準で端末のタイムゾーンを反映します
   let currentTime = new Date().toISOString();
 
-  // 4. Notionに送信するデータ構築
-  // ※Pythonコードで指定されていたプロパティIDをそのまま使用しています
   let body = {
     "parent": { "database_id": DATABASE_ID },
     "properties": {
@@ -74,7 +77,6 @@ async function run() {
     }
   };
 
-  // 5. APIリクエストの送信
   let req = new Request(NOTION_API_URL);
   req.method = "POST";
   req.headers = {
@@ -103,6 +105,5 @@ async function run() {
 }
 
 await run(); 
-// --- 変更箇所：iOSのURLスキームを使って先ほどの「GoHome」を呼び出す ---
 Safari.open("shortcuts://run-shortcut?name=GoHome");
 Script.complete();
