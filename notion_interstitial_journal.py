@@ -91,7 +91,7 @@ entry_next.pack(pady=PAD_Y)
 
 
 # 【追加】■ 目的 (qTOI)
-label_goal = tk.Label(root, text="■ 目的", font=("Helvetica", 10, "bold"), fg="#2E7D32")
+label_goal = tk.Label(root, text="■ 目的 ＆ 目標時間(何時までに終えたい？)", font=("Helvetica", 10, "bold"), fg="#2E7D32")
 label_goal.pack(pady=(10, 0))
 entry_goal = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=50, height=3)
 entry_goal.pack(pady=PAD_Y)

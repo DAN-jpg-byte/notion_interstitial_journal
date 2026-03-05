@@ -40,7 +40,7 @@ async function run() {
   // 入力フィールドの追加（Python版と同じ並びにしています）
   alert.addTextField("終わったこと・完了したこと", ""); // 0
   alert.addTextField("始めたこと・次にやりたいこと", ""); // 1
-  alert.addTextField("目的", "");                     // 2 (追加)
+  alert.addTextField("目的 ＆ 目標時間(何時までか？)", "");                     // 2 (追加)
   alert.addTextField("気持ち", "");                   // 3
   alert.addTextField("後でやりたいこと、メモなど", "");    // 4
 
