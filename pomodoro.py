@@ -4,15 +4,24 @@ import tkinter as tk
 import subprocess
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # --- 設定 ---
 WIFI_INTERFACE_NAME = "Wi-Fi 2"
-WORK_TIME = 1 * 10  # 25分
-BREAK_TIME = 1 * 10   # 5分
+
+WORK_TIME = 25 * 60  # 25分
+BREAK_TIME = 25 * 60   # 5分
+
+
+# #テスト用　普段はコメントアウト
+# WORK_TIME = 10  # 10秒
+# BREAK_TIME = 10   # 10秒
+# # --------------------------
+
+
 
 NOTION_API_TOKEN = os.getenv("NOTION_API_TOKEN")
 DATABASE_ID = os.getenv("DATABASE_ID")
@@ -47,7 +56,8 @@ class PomodoroWindow:
 
     def post_to_notion(self):
         """Notionに自動でログを送信する"""
-        current_time = datetime.now().isoformat()
+        JST = timezone(timedelta(hours=+9), 'JST')
+        current_time = datetime.now(JST).isoformat()
         headers = {
             "Authorization": f"Bearer {NOTION_API_TOKEN}",
             "Content-Type": "application/json",
