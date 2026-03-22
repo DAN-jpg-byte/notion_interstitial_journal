@@ -1,6 +1,6 @@
 # 環境変数ファイル
 .env
-
+pomodoro_images/
 # Cookieファイル（機密情報）
 *.pkl
 
