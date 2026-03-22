@@ -13,7 +13,7 @@ load_dotenv()
 WIFI_INTERFACE_NAME = "Wi-Fi 2"
 
 WORK_TIME = 25 * 60  # 25分
-BREAK_TIME = 25 * 60   # 5分
+BREAK_TIME = 5 * 60   # 5分
 
 
 # #テスト用　普段はコメントアウト
