@@ -114,7 +114,7 @@ class PomodoroWindow:
         data = {
             "parent": {"database_id": DATABASE_ID},
             "properties": {
-                "title": {"title": [{"text": {"content": f"作業中断しました ({self.cycle_count}回目)"}}]},
+                "title": {"title": [{"text": {"content": f"作業中断しました ({self.cycle_count}回目のポモドーロ完了)"}}]},
                 "I%5BJp": {"date": {"start": current_time}},
                 "udPY": {"rich_text": [{"text": {"content": "ポモドーロー休憩スタート"}}]},
                 "c%3BQ%7C": {"rich_text": [{"text": {"content": f"ポモドーロー {self.cycle_count} 回目のサイクルです"}}]}
