@@ -13,6 +13,10 @@ load_dotenv()
 
 NOTION_API_TOKEN  = os.getenv("NOTION_API_TOKEN")
 DATABASE_ID = os.getenv("DATABASE_ID")
+
+# DATABASE_ID = os.getenv("PLAN_DATABASE_ID")
+
+
 NOTION_API_URL = "https://api.notion.com/v1/pages"
 
 def get_notion_db_ids():
