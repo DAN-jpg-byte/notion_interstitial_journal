@@ -23,6 +23,8 @@ headers = {
     "Notion-Version": "2022-06-28"
 }
 
+pomodoro_app = None
+
 def send_to_notion():
     # 各入力欄からテキストを取得
     done_text = entry_done.get("1.0", tk.END).strip()
@@ -58,16 +60,34 @@ def send_to_notion():
             for entry in [entry_done, entry_goal, entry_next, entry_mood, entry_memo]:
                 entry.delete("1.0", tk.END)
             output_box.see(tk.END)
+            return True
         else:
             output_box.insert(tk.END, f"エラー: {response.status_code}\n")
             output_box.see(tk.END)
+            return False
     except Exception as e:
         output_box.insert(tk.END, f"通信エラー: {e}\n")
+        output_box.see(tk.END)
+        return False
 
 # --- ポモドーロウィンドウを開く関数 ---
 def open_pomodoro():
-    # 親ウィンドウ(root)を渡して子ウィンドウを生成
-    PomodoroWindow(root)
+    global pomodoro_app
+    # 親ウィンドウ(root)を渡して子ウィンドウを生成（既存があれば再利用）
+    if pomodoro_app is None or not pomodoro_app.window.winfo_exists():
+        pomodoro_app = PomodoroWindow(root)
+
+def send_and_start_pomodoro():
+    # Notion送信に成功した場合のみポモドーロを開始する
+    success = send_to_notion()
+    if not success:
+        output_box.insert(tk.END, "Notion送信失敗のためポモドーロは開始しませんでした。\n")
+        output_box.see(tk.END)
+        return
+
+    open_pomodoro()
+    if pomodoro_app and not pomodoro_app.is_running:
+        pomodoro_app.start_timer()
 
 # --- GUI 構築 ---
 root = tk.Tk()
@@ -97,10 +117,15 @@ tk.Label(root, text="■ メモ・後でやりたいこと", font=("Helvetica", 
 entry_memo = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=50, height=4)
 entry_memo.pack(pady=PAD_Y)
 
-# 送信ボタン
-send_button = tk.Button(root, text="Notionに送信", command=send_to_notion, 
+# 送信のみボタン
+send_button = tk.Button(root, text="Notionに送信のみ", command=send_to_notion, 
                         width=25, height=2, bg="#4CAF50", fg="white", font=("Helvetica", 10, "bold"))
 send_button.pack(pady=10)
+
+# 送信 + ポモドーロ開始ボタン
+send_and_start_button = tk.Button(root, text="送信してポモドーロ開始", command=send_and_start_pomodoro,
+                                  width=25, height=2, bg="#FF9800", fg="white", font=("Helvetica", 10, "bold"))
+send_and_start_button.pack(pady=5)
 
 # ポモドーロ起動ボタン（手動用）
 pomodoro_button = tk.Button(root, text="⏱ ポモドーロタイマー起動", command=open_pomodoro, 
